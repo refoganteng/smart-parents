@@ -5,11 +5,10 @@ import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { ChatContainer } from './components/ChatContainer';
 import { ChatInput } from './components/ChatInput';
-import { SourceLibraryModal } from './components/SourceLibraryModal';
-import { ParentingToolkitModal } from './components/ParentingToolkitModal';
 
 const SESSIONS_STORAGE_KEY = 'smart_parents_sessions_v1';
 const CURRENT_CID_KEY = 'smart_parents_current_cid_v1';
+const THEME_STORAGE_KEY = 'smart_parents_theme_v1';
 const getMessagesStorageKey = (cid: string) => `smart_parents_messages_${cid}`;
 
 function generateConversationId(): string {
@@ -17,6 +16,12 @@ function generateConversationId(): string {
 }
 
 export const App: React.FC = () => {
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    if (saved === 'dark' || saved === 'light') return saved;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+
   const [conversationId, setConversationId] = useState<string>(() => {
     return localStorage.getItem(CURRENT_CID_KEY) || generateConversationId();
   });
@@ -36,8 +41,6 @@ export const App: React.FC = () => {
 
   const [isStreaming, setIsStreaming] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isLibraryOpen, setIsLibraryOpen] = useState(false);
-  const [isToolkitOpen, setIsToolkitOpen] = useState(false);
   
   const [sessions, setSessions] = useState<ChatSessionMeta[]>(() => {
     try {
@@ -49,6 +52,20 @@ export const App: React.FC = () => {
   });
 
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Sync theme with HTML class
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+  }, []);
 
   // Save current conversation ID
   useEffect(() => {
@@ -71,7 +88,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
 
-    // 1. Try local cache first for instant zero-latency load
+    // 1. Try local cache first for instant load
     try {
       const cached = localStorage.getItem(getMessagesStorageKey(conversationId));
       if (cached) {
@@ -102,7 +119,7 @@ export const App: React.FC = () => {
   const updateSessionMeta = useCallback((cid: string, firstMsg: string) => {
     setSessions(prev => {
       const existing = prev.find(s => s.id === cid);
-      const title = firstMsg.length > 35 ? `${firstMsg.slice(0, 35)}...` : firstMsg;
+      const title = firstMsg.length > 32 ? `${firstMsg.slice(0, 32)}...` : firstMsg;
       if (existing) {
         return prev.map(s => s.id === cid ? { ...s, lastMessage: title, timestamp: Date.now() } : s);
       }
@@ -206,7 +223,6 @@ export const App: React.FC = () => {
       handleStopStream();
     }
     setConversationId(id);
-    // Load immediately from local storage for instant transition
     try {
       const cached = localStorage.getItem(getMessagesStorageKey(id));
       if (cached) {
@@ -229,27 +245,25 @@ export const App: React.FC = () => {
   }, [conversationId, handleNewChat]);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 text-slate-800">
+    <div className="flex h-screen w-screen overflow-hidden bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors">
       {/* Sidebar navigation */}
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
-        onSelectTopic={handleSendMessage}
+        onNewChat={handleNewChat}
         sessions={sessions}
         currentSessionId={conversationId}
         onSelectSession={handleSelectSession}
         onDeleteSession={handleDeleteSession}
-        onOpenLibrary={() => setIsLibraryOpen(true)}
-        onOpenToolkit={() => setIsToolkitOpen(true)}
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-white dark:bg-slate-900 transition-colors">
         <Header
           onNewChat={handleNewChat}
-          onOpenLibrary={() => setIsLibraryOpen(true)}
-          onOpenToolkit={() => setIsToolkitOpen(true)}
-          onToggleMobileSidebar={() => setIsSidebarOpen(prev => !prev)}
+          onToggleSidebar={() => setIsSidebarOpen(prev => !prev)}
+          theme={theme}
+          onToggleTheme={toggleTheme}
           isStreaming={isStreaming}
         />
 
@@ -258,7 +272,6 @@ export const App: React.FC = () => {
             messages={messages}
             isStreaming={isStreaming}
             onSelectTopic={handleSendMessage}
-            onOpenLibrary={() => setIsLibraryOpen(true)}
           />
 
           <ChatInput
@@ -268,19 +281,6 @@ export const App: React.FC = () => {
           />
         </main>
       </div>
-
-      {/* Modals */}
-      <SourceLibraryModal
-        isOpen={isLibraryOpen}
-        onClose={() => setIsLibraryOpen(false)}
-        onAskTopic={handleSendMessage}
-      />
-
-      <ParentingToolkitModal
-        isOpen={isToolkitOpen}
-        onClose={() => setIsToolkitOpen(false)}
-        onStartRoleplayChat={handleSendMessage}
-      />
     </div>
   );
 };

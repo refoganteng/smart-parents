@@ -1,96 +1,79 @@
 import React from 'react';
 import { 
-  HeartHandshake, 
-  ShieldCheck, 
-  Plus, 
-  BookOpen, 
-  Sparkles, 
   Menu,
+  SquarePen,
+  Sun,
+  Moon,
+  Sparkles,
   RotateCcw
 } from 'lucide-react';
 
 interface HeaderProps {
   onNewChat: () => void;
-  onOpenLibrary: () => void;
-  onOpenToolkit: () => void;
-  onToggleMobileSidebar: () => void;
+  onToggleSidebar: () => void;
+  theme: 'light' | 'dark';
+  onToggleTheme: () => void;
   isStreaming?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   onNewChat,
-  onOpenLibrary,
-  onOpenToolkit,
-  onToggleMobileSidebar,
+  onToggleSidebar,
+  theme,
+  onToggleTheme,
   isStreaming = false,
 }) => {
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs px-4 lg:px-6 py-3 transition-all">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-        {/* Left: Mobile Toggle & Brand */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onToggleMobileSidebar}
-            aria-label="Buka Menu"
-            className="p-2 rounded-lg text-slate-600 hover:text-teal-700 hover:bg-teal-50 lg:hidden transition-colors"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
+    <header className="sticky top-0 z-20 h-13 px-3 md:px-5 flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md transition-colors">
+      {/* Left: Sidebar Toggle & App Name */}
+      <div className="flex items-center gap-2.5">
+        <button
+          onClick={onToggleSidebar}
+          aria-label="Toggle Sidebar"
+          className="p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
 
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-600 via-teal-500 to-emerald-400 flex items-center justify-center text-white shadow-md shadow-teal-500/20">
-              <HeartHandshake className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="font-bold text-slate-900 text-base md:text-lg tracking-tight">
-                  Smart Parents AI
-                </h1>
-                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-teal-50 text-teal-700 border border-teal-200/60">
-                  <ShieldCheck className="w-3 h-3 text-teal-600" />
-                  RAG Parenting 2023
-                </span>
-              </div>
-              <p className="text-[11px] md:text-xs text-slate-500 hidden sm:block">
-                Konsultan & Sahabat Pengasuhan Karakter Anak Terpercaya
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Right: Actions */}
         <div className="flex items-center gap-2">
-          <button
-            onClick={onOpenLibrary}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 hover:text-teal-700 hover:bg-teal-50/80 border border-slate-200 hover:border-teal-200 transition-all cursor-pointer shadow-xs"
-            title="Lihat Basis Pengetahuan & Buku Referensi"
-          >
-            <BookOpen className="w-4 h-4 text-teal-600" />
-            <span className="hidden md:inline">Sumber Buku</span>
-          </button>
-
-          <button
-            onClick={onOpenToolkit}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 hover:text-indigo-700 hover:bg-indigo-50/80 border border-slate-200 hover:border-indigo-200 transition-all cursor-pointer shadow-xs"
-            title="Latihan Dialog & Tes Gaya Asuh"
-          >
-            <Sparkles className="w-4 h-4 text-indigo-600" />
-            <span className="hidden md:inline">Parenting Tools</span>
-          </button>
-
-          <button
-            onClick={onNewChat}
-            disabled={isStreaming}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 active:scale-97 disabled:opacity-50 disabled:pointer-events-none transition-all cursor-pointer shadow-sm shadow-teal-600/25"
-          >
-            {isStreaming ? (
-              <RotateCcw className="w-4 h-4 animate-spin" />
-            ) : (
-              <Plus className="w-4 h-4" />
-            )}
-            <span>Sesi Baru</span>
-          </button>
+          <div className="w-7 h-7 rounded-lg bg-teal-600 dark:bg-teal-500 text-white flex items-center justify-center shadow-xs">
+            <Sparkles className="w-4 h-4" />
+          </div>
+          <span className="font-semibold text-sm md:text-base text-slate-900 dark:text-slate-100 tracking-tight">
+            Smart Parents AI
+          </span>
         </div>
+      </div>
+
+      {/* Right: Theme Toggle & New Chat Button */}
+      <div className="flex items-center gap-1.5">
+        <button
+          onClick={onToggleTheme}
+          aria-label={theme === 'dark' ? 'Ganti ke Mode Terang' : 'Ganti ke Mode Gelap'}
+          className="p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
+        >
+          {theme === 'dark' ? (
+            <Sun className="w-4 h-4 text-amber-400" />
+          ) : (
+            <Moon className="w-4 h-4 text-slate-600" />
+          )}
+        </button>
+
+        <button
+          onClick={onNewChat}
+          disabled={isStreaming}
+          aria-label="Obrolan Baru"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 transition-all cursor-pointer disabled:opacity-50"
+          title="Obrolan Baru"
+        >
+          {isStreaming ? (
+            <RotateCcw className="w-3.5 h-3.5 animate-spin text-teal-600" />
+          ) : (
+            <SquarePen className="w-3.5 h-3.5" />
+          )}
+          <span className="hidden sm:inline">Obrolan Baru</span>
+        </button>
       </div>
     </header>
   );

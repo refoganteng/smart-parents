@@ -1,20 +1,22 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 
   body {
-    @apply bg-slate-50 text-slate-800 antialiased selection:bg-teal-100 selection:text-teal-900;
+    @apply antialiased selection:bg-teal-500/20 selection:text-teal-900 dark:selection:text-teal-200 transition-colors duration-200;
     font-family: var(--font-sans);
   }
 }
 
 /* Custom smooth scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -22,72 +24,78 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background-color: rgba(148, 163, 184, 0.4);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background-color: rgba(148, 163, 184, 0.7);
 }
 
-/* Markdown styling inside chat messages */
-.prose-parenting {
-  @apply text-slate-800 leading-relaxed text-sm md:text-base;
+/* Minimalist Markdown styling inside chat messages */
+.prose-minimal {
+  @apply leading-relaxed text-sm md:text-[15px];
 }
 
-.prose-parenting p {
+.prose-minimal p {
   @apply mb-3 last:mb-0;
 }
 
-.prose-parenting h1,
-.prose-parenting h2,
-.prose-parenting h3,
-.prose-parenting h4 {
-  @apply font-semibold text-slate-900 mt-4 mb-2 first:mt-0 tracking-tight;
+.prose-minimal h1,
+.prose-minimal h2,
+.prose-minimal h3,
+.prose-minimal h4 {
+  @apply font-semibold mt-4 mb-2 first:mt-0 tracking-tight text-slate-900 dark:text-slate-100;
 }
 
-.prose-parenting h1 { @apply text-lg md:text-xl text-teal-900 border-b border-teal-100 pb-1.5; }
-.prose-parenting h2 { @apply text-base md:text-lg text-teal-800; }
-.prose-parenting h3 { @apply text-sm md:text-base text-slate-800 font-bold; }
+.prose-minimal h1 { @apply text-lg md:text-xl text-teal-800 dark:text-teal-400 border-b border-slate-200 dark:border-slate-800 pb-1.5; }
+.prose-minimal h2 { @apply text-base md:text-lg text-teal-700 dark:text-teal-300; }
+.prose-minimal h3 { @apply text-sm md:text-base font-bold; }
 
-.prose-parenting ul {
-  @apply list-disc list-outside ml-4 mb-3 space-y-1.5 text-slate-700;
+.prose-minimal ul {
+  @apply list-disc list-outside ml-4 mb-3 space-y-1 text-slate-700 dark:text-slate-300;
 }
 
-.prose-parenting ol {
-  @apply list-decimal list-outside ml-4 mb-3 space-y-1.5 text-slate-700;
+.prose-minimal ol {
+  @apply list-decimal list-outside ml-4 mb-3 space-y-1 text-slate-700 dark:text-slate-300;
 }
 
-.prose-parenting li {
+.prose-minimal li {
   @apply pl-1;
 }
 
-.prose-parenting blockquote {
-  @apply border-l-4 border-teal-500 bg-teal-50/70 rounded-r-lg px-4 py-2.5 my-3 text-teal-900 font-medium italic text-sm;
+.prose-minimal blockquote {
+  @apply border-l-3 border-teal-500 bg-teal-50/60 dark:bg-teal-950/30 rounded-r-md px-3.5 py-2 my-2.5 text-teal-900 dark:text-teal-200 text-xs md:text-sm;
 }
 
-.prose-parenting code {
-  @apply font-mono text-xs bg-slate-100 text-teal-700 px-1.5 py-0.5 rounded border border-slate-200;
+.prose-minimal code {
+  @apply font-mono text-xs bg-slate-100 dark:bg-slate-800 text-teal-700 dark:text-teal-400 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700;
 }
 
-.prose-parenting pre {
-  @apply bg-slate-900 text-slate-100 p-3 rounded-lg overflow-x-auto text-xs my-3 border border-slate-800;
+.prose-minimal pre {
+  @apply bg-slate-900 dark:bg-slate-950 text-slate-100 p-3 rounded-lg overflow-x-auto text-xs my-3 border border-slate-800;
 }
 
-.prose-parenting strong {
-  @apply font-semibold text-slate-900;
+.prose-minimal strong {
+  @apply font-semibold text-slate-900 dark:text-slate-100;
 }
 
-.prose-parenting hr {
-  @apply border-slate-200 my-4;
+.prose-minimal hr {
+  @apply border-slate-200 dark:border-slate-800 my-4;
 }
 
-/* Animation utilities */
-@keyframes pulse-subtle {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.85; transform: scale(0.98); }
+/* Subtle blinking caret for streaming output */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
-.animate-pulse-subtle {
-  animation: pulse-subtle 3s infinite ease-in-out;
+.streaming-caret {
+  display: inline-block;
+  width: 6px;
+  height: 15px;
+  margin-left: 2px;
+  vertical-align: middle;
+  background-color: #0d9488;
+  animation: blink 0.9s infinite;
 }

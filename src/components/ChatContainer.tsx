@@ -2,31 +2,33 @@ import React, { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { 
-  HeartHandshake, 
-  User, 
   Copy, 
   Check, 
   Sparkles, 
-  BookOpen, 
   RotateCcw,
-  Lightbulb,
-  ExternalLink
+  Bot,
+  User,
+  ArrowRight
 } from 'lucide-react';
 import type { Message } from '../types';
-import { TopicCards } from './TopicCards';
 
 interface ChatContainerProps {
   messages: Message[];
   isStreaming: boolean;
   onSelectTopic: (prompt: string) => void;
-  onOpenLibrary: () => void;
 }
+
+const CLEAN_SUGGESTIONS = [
+  'Bagaimana cara tenang menghadapi anak tantrum di tempat umum?',
+  'Berapa batas waktu screen time yang sehat untuk anak?',
+  'Bagaimana cara membagi peran pengasuhan (co-parenting) dengan pasangan?',
+  'Bagaimana merespon pertanyaan kritis dan sensitif dari anak?',
+];
 
 export const ChatContainer: React.FC<ChatContainerProps> = ({
   messages,
   isStreaming,
   onSelectTopic,
-  onOpenLibrary,
 }) => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -44,156 +46,121 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
   const isEmpty = messages.length === 0;
 
   return (
-    <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6">
+      <div className="max-w-3xl mx-auto min-h-full flex flex-col justify-between">
         {isEmpty ? (
-          /* Empty State: Welcome Hero */
-          <div className="py-6 space-y-6 animate-in fade-in duration-300">
-            {/* Hero Header */}
-            <div className="text-center space-y-3 max-w-2xl mx-auto">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-teal-50 text-teal-700 border border-teal-200/80 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-teal-600" />
-                <span>Konsultan AI Berbasis RAG Buku Parenting Nasional</span>
-              </div>
-
-              <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-                Bagaimana Kami Dapat Membantu Pengasuhan Anak Anda Hari Ini?
-              </h2>
-
-              <p className="text-xs md:text-sm text-slate-600 leading-relaxed">
-                Smart Parents AI siap mendampingi Anda dengan jawaban empatik, ilmiah, dan solutif yang merujuk langsung pada 12 Bab buku <em>"Parenting: Rahasia Membentuk Karakter Anak"</em> serta pedoman psikologi perkembangan anak global.
-              </p>
+          /* Minimalist Empty State (like Claude / ChatGPT) */
+          <div className="flex-1 flex flex-col items-center justify-center text-center py-12 md:py-20 animate-in fade-in duration-300">
+            <div className="w-12 h-12 rounded-2xl bg-teal-600/10 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-5 shadow-2xs">
+              <Sparkles className="w-6 h-6" />
             </div>
 
-            {/* Quick Feature Badges */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="p-3.5 rounded-xl border border-teal-100 bg-teal-50/50 flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-teal-100 text-teal-700 mt-0.5">
-                  <BookOpen className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-teal-950">Evidence-Based RAG</h4>
-                  <p className="text-[11px] text-teal-800/80 mt-0.5">Grounding ilmiah 12 bab karakter anak & pedoman global</p>
-                </div>
-              </div>
+            <h2 className="text-xl md:text-2xl font-semibold text-slate-900 dark:text-slate-100 tracking-tight mb-2">
+              Apa yang ingin Anda diskusikan tentang si kecil hari ini?
+            </h2>
 
-              <div className="p-3.5 rounded-xl border border-indigo-100 bg-indigo-50/50 flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-indigo-100 text-indigo-700 mt-0.5">
-                  <Lightbulb className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-indigo-950">Actionable Script</h4>
-                  <p className="text-[11px] text-indigo-800/80 mt-0.5">Contoh konkret kalimat yang dianjurkan vs dihindari</p>
-                </div>
-              </div>
+            <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 max-w-md leading-relaxed mb-8">
+              Konsultan parenting cerdas dan empatik yang siap membantu pola asuh, regulasi emosi, tantrum, hingga screen time anak.
+            </p>
 
-              <div className="p-3.5 rounded-xl border border-rose-100 bg-rose-50/50 flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-rose-100 text-rose-700 mt-0.5">
-                  <HeartHandshake className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-rose-950">Empatik & Tanpa Menghakimi</h4>
-                  <p className="text-[11px] text-rose-800/80 mt-0.5">Mendukung kesehatan mental ibu & ayah tanpa rasa bersalah</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Topic Cards Matrix */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                  Topik Populer yang Sering Ditanyakan
-                </h3>
+            {/* Simple Clean Suggestion Pills */}
+            <div className="w-full max-w-xl grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
+              {CLEAN_SUGGESTIONS.map((item, idx) => (
                 <button
-                  onClick={onOpenLibrary}
-                  className="text-xs text-teal-700 hover:text-teal-800 font-semibold inline-flex items-center gap-1 cursor-pointer"
+                  key={idx}
+                  onClick={() => onSelectTopic(item)}
+                  className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:border-teal-500/50 dark:hover:border-teal-500/40 text-xs text-slate-700 dark:text-slate-300 transition-all flex items-center justify-between group cursor-pointer shadow-2xs"
                 >
-                  Lihat Semua 12 Bab
-                  <ExternalLink className="w-3 h-3" />
+                  <span className="line-clamp-2 pr-2 leading-relaxed">{item}</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 group-hover:translate-x-0.5 transition-all shrink-0" />
                 </button>
-              </div>
-              <TopicCards onSelectTopic={onSelectTopic} />
+              ))}
             </div>
           </div>
         ) : (
-          /* Active Chat Messages */
-          <div className="space-y-6">
+          /* Active Chat Stream */
+          <div className="space-y-6 pb-4">
             {messages.map((msg, index) => {
               const isUser = msg.role === 'user';
+              const isLast = index === messages.length - 1;
 
               return (
                 <div
                   key={msg.id || index}
-                  className={`flex gap-3 md:gap-4 ${isUser ? 'justify-end' : 'justify-start'}`}
+                  className={`flex gap-3.5 md:gap-4 ${isUser ? 'justify-end' : 'justify-start'}`}
                 >
                   {/* Assistant Avatar */}
                   {!isUser && (
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-teal-600 to-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
-                      <HeartHandshake className="w-5 h-5" />
+                    <div className="w-8 h-8 rounded-lg bg-teal-600 dark:bg-teal-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                      <Bot className="w-4 h-4" />
                     </div>
                   )}
 
-                  {/* Message Bubble */}
+                  {/* Message Bubble / Content */}
                   <div className={`
-                    max-w-[88%] sm:max-w-[80%] md:max-w-[75%] rounded-2xl p-4 md:p-5 transition-all
+                    max-w-[90%] sm:max-w-[85%] md:max-w-[82%]
                     ${isUser 
-                      ? 'bg-gradient-to-tr from-teal-700 to-teal-600 text-white rounded-br-xs shadow-md shadow-teal-700/15' 
-                      : 'bg-white border border-slate-200/90 text-slate-800 rounded-bl-xs shadow-xs'}
+                      ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-3 rounded-2xl rounded-br-xs' 
+                      : 'text-slate-900 dark:text-slate-100 py-1 flex-1'}
                   `}>
-                    {/* Header info */}
-                    <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-black/5 text-[11px]">
-                      <span className={`font-semibold ${isUser ? 'text-teal-100' : 'text-teal-800'}`}>
-                        {isUser ? 'Orang Tua' : 'Smart Parents AI'}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span className={isUser ? 'text-teal-200' : 'text-slate-400'}>
-                          {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                        {!isUser && (
-                          <button
-                            onClick={() => handleCopy(msg.content, msg.id || String(index))}
-                            className="p-1 rounded text-slate-400 hover:text-teal-700 hover:bg-slate-100 transition-colors cursor-pointer"
-                            title="Salin jawaban"
-                          >
-                            {copiedId === (msg.id || String(index)) ? (
-                              <Check className="w-3.5 h-3.5 text-emerald-600" />
-                            ) : (
-                              <Copy className="w-3.5 h-3.5" />
-                            )}
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Content */}
+                    {/* User Text */}
                     {isUser ? (
                       <div className="text-xs md:text-sm whitespace-pre-wrap leading-relaxed">
                         {msg.content}
                       </div>
                     ) : (
-                      <div className="prose-parenting">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {msg.content}
-                        </ReactMarkdown>
+                      /* Assistant Markdown Content */
+                      <div className="space-y-2">
+                        <div className="prose-minimal text-slate-800 dark:text-slate-200">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {msg.content}
+                          </ReactMarkdown>
+                          {isStreaming && isLast && (
+                            <span className="streaming-caret" />
+                          )}
+                        </div>
+
+                        {/* Actions (Copy button) */}
+                        {msg.content && !isStreaming && (
+                          <div className="flex items-center gap-2 pt-1 text-slate-400 dark:text-slate-500">
+                            <button
+                              onClick={() => handleCopy(msg.content, msg.id || String(index))}
+                              className="inline-flex items-center gap-1 text-[11px] p-1 rounded hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                              title="Salin jawaban"
+                            >
+                              {copiedId === (msg.id || String(index)) ? (
+                                <>
+                                  <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                                  <span className="text-emerald-600 dark:text-emerald-400">Tersalin</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3 h-3" />
+                                  <span>Salin</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
 
                   {/* User Avatar */}
                   {isUser && (
-                    <div className="w-9 h-9 rounded-xl bg-slate-800 text-slate-100 flex items-center justify-center shrink-0 shadow-sm mt-0.5">
-                      <User className="w-5 h-5" />
+                    <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center shrink-0 mt-0.5">
+                      <User className="w-4 h-4" />
                     </div>
                   )}
                 </div>
               );
             })}
 
-            {/* Streaming Caret Indicator */}
-            {isStreaming && (
-              <div className="flex gap-3 items-center text-xs text-teal-700 font-medium bg-teal-50/70 border border-teal-200/60 p-3 rounded-xl w-fit animate-pulse-subtle">
-                <RotateCcw className="w-4 h-4 animate-spin text-teal-600" />
-                <span>Smart Parents AI sedang menyusun jawaban berdasarkan rujukan buku parenting...</span>
+            {/* In-Flight Streaming indicator if no token received yet */}
+            {isStreaming && messages[messages.length - 1]?.role === 'user' && (
+              <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500 py-2">
+                <RotateCcw className="w-3.5 h-3.5 animate-spin text-teal-600 dark:text-teal-400" />
+                <span>Smart Parents AI sedang berpikir...</span>
               </div>
             )}
           </div>
