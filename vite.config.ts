@@ -53,12 +53,18 @@ function edgeOneDevMiddleware(): Plugin {
             const apiKey = 
               process.env.AI_GATEWAY_API_KEY || 
               process.env.API_GATEWAY_API_KEY || 
-              'sk-a3b126d30a953c022c2f5c153b39e17b5e642ad5431df542';
+              '';
 
             const model = 
               process.env.AI_GATEWAY_MODEL || 
               process.env.API_GATEWAY_MODEL || 
               '@makers/deepseek-v4-flash';
+
+            if (!apiKey) {
+              res.write(`event: error\ndata: ${JSON.stringify({ message: 'AI Gateway not configured. Set AI_GATEWAY_API_KEY.' })}\n\n`);
+              res.end();
+              return;
+            }
 
             // Retrieve RAG Context
             const ragResult = retrieveRagContext(message, 3);
