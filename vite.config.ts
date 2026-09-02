@@ -50,8 +50,15 @@ function edgeOneDevMiddleware(): Plugin {
               'X-Accel-Buffering': 'no',
             });
 
-            const apiKey = process.env.AI_GATEWAY_API_KEY || 'sk-a3b126d30a953c022c2f5c153b39e17b5e642ad5431df542';
-            const model = process.env.AI_GATEWAY_MODEL || '@makers/deepseek-v4-flash';
+            const apiKey = 
+              process.env.AI_GATEWAY_API_KEY || 
+              process.env.API_GATEWAY_API_KEY || 
+              'sk-a3b126d30a953c022c2f5c153b39e17b5e642ad5431df542';
+
+            const model = 
+              process.env.AI_GATEWAY_MODEL || 
+              process.env.API_GATEWAY_MODEL || 
+              '@makers/deepseek-v4-flash';
 
             // Retrieve RAG Context
             const ragResult = retrieveRagContext(message, 3);
@@ -97,6 +104,16 @@ function edgeOneDevMiddleware(): Plugin {
               };
 
               const gwReq = https.request(options, (gwRes) => {
+                if (gwRes.statusCode && gwRes.statusCode >= 400) {
+                  let errBody = '';
+                  gwRes.on('data', chunk => errBody += chunk.toString());
+                  gwRes.on('end', () => {
+                    res.write(`event: error\ndata: ${JSON.stringify({ message: `AI Gateway status ${gwRes.statusCode}: ${errBody}` })}\n\n`);
+                    res.end();
+                  });
+                  return;
+                }
+
                 let buffer = '';
                 gwRes.on('data', chunk => {
                   buffer += chunk.toString();

@@ -4,8 +4,8 @@
  *
  * Imported by chat/index.ts via `import { getModelConfig } from '../_model'`
  *
- * Configure via environment variables:
- *   AI_GATEWAY_API_KEY / AI_GATEWAY_BASE_URL / AI_GATEWAY_MODEL
+ * Supports both AI_GATEWAY_* and API_GATEWAY_* naming conventions with
+ * robust fallback defaults.
  */
 
 type RuntimeEnv = Record<string, string | undefined>;
@@ -16,10 +16,22 @@ export interface ModelConfig {
   model: string;
 }
 
-export function getModelConfig(env: RuntimeEnv): ModelConfig {
-  return {
-    apiKey: env.AI_GATEWAY_API_KEY || 'sk-a3b126d30a953c022c2f5c153b39e17b5e642ad5431df542',
-    baseUrl: env.AI_GATEWAY_BASE_URL || 'https://ai-gateway.edgeone.link/v1',
-    model: env.AI_GATEWAY_MODEL || '@makers/deepseek-v4-flash',
-  };
+export function getModelConfig(env: RuntimeEnv = {}): ModelConfig {
+  const apiKey = 
+    env.AI_GATEWAY_API_KEY || 
+    env.API_GATEWAY_API_KEY || 
+    'sk-a3b126d30a953c022c2f5c153b39e17b5e642ad5431df542';
+
+  const baseUrl = (
+    env.AI_GATEWAY_BASE_URL || 
+    env.API_GATEWAY_BASE_URL || 
+    'https://ai-gateway.edgeone.link/v1'
+  ).trim();
+
+  const model = 
+    env.AI_GATEWAY_MODEL || 
+    env.API_GATEWAY_MODEL || 
+    '@makers/deepseek-v4-flash';
+
+  return { apiKey, baseUrl, model };
 }

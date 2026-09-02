@@ -182,15 +182,18 @@ export const App: React.FC = () => {
           setIsStreaming(false);
           abortControllerRef.current = null;
         },
-        onError: () => {
+        onError: (err: Error) => {
           setIsStreaming(false);
           abortControllerRef.current = null;
+          console.error('[Smart Parents Chat Error]', err);
           setMessages(prev => {
             return prev.map(m => {
               if (m.id === assistantPlaceholderId) {
                 return {
                   ...m,
-                  content: m.content ? `${m.content}\n\n*[Catatan: Terjadi kendala koneksi AI Gateway]*` : 'Mohon maaf, terjadi kendala saat menghubungi AI Gateway EdgeOne. Silakan coba sesaat lagi.',
+                  content: m.content 
+                    ? `${m.content}\n\n*[Catatan: ${err.message || 'Terjadi kendala koneksi AI Gateway'}]*` 
+                    : `Mohon maaf, terjadi kendala saat menghubungi AI Gateway EdgeOne (${err.message || 'Koneksi terputus'}). Silakan coba sesaat lagi.`,
                 };
               }
               return m;
