@@ -3,9 +3,6 @@
  * Used to configure the LLM model from EdgeOne runtime context.env.
  *
  * Imported by chat/index.ts via `import { getModelConfig } from '../_model'`
- *
- * Supports both AI_GATEWAY_* and API_GATEWAY_* naming conventions with
- * robust sanitization and valid fallback defaults.
  */
 
 type RuntimeEnv = Record<string, string | undefined>;
@@ -16,7 +13,6 @@ export interface ModelConfig {
   model: string;
 }
 
-const DEFAULT_API_KEY = 'sk-a3b126d30a953c022c2f5c153b39e17b5e642ad5431df542';
 const DEFAULT_BASE_URL = 'https://ai-gateway.edgeone.link/v1';
 const DEFAULT_MODEL = '@makers/deepseek-v4-flash';
 
@@ -24,7 +20,7 @@ export function getModelConfig(env: RuntimeEnv = {}): ModelConfig {
   let rawKey = env.AI_GATEWAY_API_KEY ?? env.API_GATEWAY_API_KEY ?? '';
   rawKey = String(rawKey).trim().replace(/^["']|["']$/g, '');
 
-  const apiKey = rawKey.length > 10 ? rawKey : DEFAULT_API_KEY;
+  const apiKey = rawKey.length > 10 ? rawKey : '';
 
   let rawUrl = env.AI_GATEWAY_BASE_URL ?? env.API_GATEWAY_BASE_URL ?? '';
   rawUrl = String(rawUrl).trim().replace(/^["']|["']$/g, '').replace(/\/$/, '');

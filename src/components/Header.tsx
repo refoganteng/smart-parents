@@ -5,12 +5,15 @@ import {
   Sun,
   Moon,
   Sparkles,
-  RotateCcw
+  RotateCcw,
+  FileDown
 } from 'lucide-react';
 
 interface HeaderProps {
   onNewChat: () => void;
   onToggleSidebar: () => void;
+  onExportPdf?: () => void;
+  canExport?: boolean;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
   isStreaming?: boolean;
@@ -19,6 +22,8 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   onNewChat,
   onToggleSidebar,
+  onExportPdf,
+  canExport = false,
   theme,
   onToggleTheme,
   isStreaming = false,
@@ -45,8 +50,21 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Right: Theme Toggle & New Chat Button */}
+      {/* Right: Actions (Export PDF, Theme, New Chat) */}
       <div className="flex items-center gap-1.5">
+        {onExportPdf && (
+          <button
+            onClick={onExportPdf}
+            disabled={!canExport || isStreaming}
+            aria-label="Ekspor Chat ke PDF"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Ekspor Chat ke PDF"
+          >
+            <FileDown className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+            <span className="hidden sm:inline">Ekspor PDF</span>
+          </button>
+        )}
+
         <button
           onClick={onToggleTheme}
           aria-label={theme === 'dark' ? 'Ganti ke Mode Terang' : 'Ganti ke Mode Gelap'}

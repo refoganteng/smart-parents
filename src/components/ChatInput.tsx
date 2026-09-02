@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowUp, Square } from 'lucide-react';
+import { ArrowUp, Square, Heart } from 'lucide-react';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -43,7 +43,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   return (
-    <div className="sticky bottom-0 pb-3 md:pb-5 pt-1 px-4 md:px-8 bg-gradient-to-t from-white via-white to-transparent dark:from-slate-900 dark:via-slate-900 dark:to-transparent">
+    <div className="sticky bottom-0 pb-3 md:pb-4 pt-1 px-4 md:px-8 bg-gradient-to-t from-white via-white to-transparent dark:from-slate-900 dark:via-slate-900 dark:to-transparent">
       <div className="max-w-3xl mx-auto space-y-2">
         {/* Main Input Box */}
         <form 
@@ -84,10 +84,17 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           </div>
         </form>
 
-        {/* Minimal Footer Note */}
-        <p className="text-[11px] text-center text-slate-400 dark:text-slate-500">
-          Smart Parents AI berbasis pengetahuan ilmiah. Konsultasikan ke ahli medis untuk kebutuhan klinis.
-        </p>
+        {/* Footer info & Crafted by */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-1 text-[11px] text-slate-400 dark:text-slate-500 px-1">
+          <p>
+            Smart Parents AI • Berbasis psikologi anak & rujukan ilmiah
+          </p>
+          <p className="flex items-center gap-1 font-medium text-slate-500 dark:text-slate-400">
+            <span>Crafted with</span>
+            <Heart className="w-3 h-3 text-rose-500 fill-rose-500 inline" />
+            <span>by <strong className="text-slate-700 dark:text-slate-300 font-semibold">Revo Nando</strong></span>
+          </p>
+        </div>
       </div>
     </div>
   );

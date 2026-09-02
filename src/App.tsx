@@ -5,6 +5,7 @@ import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { ChatContainer } from './components/ChatContainer';
 import { ChatInput } from './components/ChatInput';
+import { exportChatToPdf } from './lib/exportPdf';
 
 const SESSIONS_STORAGE_KEY = 'smart_parents_sessions_v1';
 const CURRENT_CID_KEY = 'smart_parents_current_cid_v1';
@@ -252,6 +253,12 @@ export const App: React.FC = () => {
     }
   }, [conversationId, handleNewChat]);
 
+  const handleExportPdf = useCallback(() => {
+    const activeSession = sessions.find(s => s.id === conversationId);
+    const title = activeSession?.title || 'Percakapan Smart Parents AI';
+    exportChatToPdf(messages, title);
+  }, [messages, sessions, conversationId]);
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors">
       {/* Sidebar navigation */}
@@ -270,6 +277,8 @@ export const App: React.FC = () => {
         <Header
           onNewChat={handleNewChat}
           onToggleSidebar={() => setIsSidebarOpen(prev => !prev)}
+          onExportPdf={handleExportPdf}
+          canExport={messages.length > 0}
           theme={theme}
           onToggleTheme={toggleTheme}
           isStreaming={isStreaming}

@@ -112,12 +112,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Bottom Status / Branding */}
-        <div className="p-3 border-t border-slate-200/60 dark:border-slate-800/60 text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>EdgeOne AI</span>
+        <div className="p-3 border-t border-slate-200/60 dark:border-slate-800/60 text-[11px] text-slate-500 dark:text-slate-400 space-y-1.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span>EdgeOne AI</span>
+            </div>
+            <span className="font-mono text-[10px] text-slate-400 dark:text-slate-500">DeepSeek-v4</span>
           </div>
-          <span className="font-mono text-[10px] text-slate-400 dark:text-slate-500">DeepSeek-v4</span>
+          <div className="text-[10px] text-slate-400 dark:text-slate-500 pt-0.5 text-center border-t border-slate-200/40 dark:border-slate-800/40">
+            Crafted by <span className="font-medium text-slate-600 dark:text-slate-300">Revo Nando</span>
+          </div>
         </div>
       </aside>
     </>
