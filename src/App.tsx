@@ -10,6 +10,7 @@ import { ParentingToolkitModal } from './components/ParentingToolkitModal';
 
 const SESSIONS_STORAGE_KEY = 'smart_parents_sessions_v1';
 const CURRENT_CID_KEY = 'smart_parents_current_cid_v1';
+const getMessagesStorageKey = (cid: string) => `smart_parents_messages_${cid}`;
 
 function generateConversationId(): string {
   return `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -20,7 +21,19 @@ export const App: React.FC = () => {
     return localStorage.getItem(CURRENT_CID_KEY) || generateConversationId();
   });
 
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const initialCid = localStorage.getItem(CURRENT_CID_KEY);
+    if (initialCid) {
+      try {
+        const cached = localStorage.getItem(getMessagesStorageKey(initialCid));
+        if (cached) return JSON.parse(cached);
+      } catch {
+        // ignore parse error
+      }
+    }
+    return [];
+  });
+
   const [isStreaming, setIsStreaming] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
@@ -42,21 +55,45 @@ export const App: React.FC = () => {
     localStorage.setItem(CURRENT_CID_KEY, conversationId);
   }, [conversationId]);
 
-  // Save sessions to localStorage
+  // Save sessions list to localStorage
   useEffect(() => {
     localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(sessions));
   }, [sessions]);
 
-  // Load history on initial mount or when conversationId switches
+  // Save active messages of current session to localStorage whenever they change
+  useEffect(() => {
+    if (conversationId && messages.length > 0) {
+      localStorage.setItem(getMessagesStorageKey(conversationId), JSON.stringify(messages));
+    }
+  }, [conversationId, messages]);
+
+  // Load history when conversationId switches
   useEffect(() => {
     let isMounted = true;
+
+    // 1. Try local cache first for instant zero-latency load
+    try {
+      const cached = localStorage.getItem(getMessagesStorageKey(conversationId));
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMessages(parsed);
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    // 2. Fetch server history sync as fallback
     (async () => {
       if (!conversationId) return;
       const history = await fetchConversationHistory(conversationId);
       if (isMounted && history.length > 0) {
         setMessages(history);
+        localStorage.setItem(getMessagesStorageKey(conversationId), JSON.stringify(history));
       }
     })();
+
     return () => {
       isMounted = false;
     };
@@ -169,12 +206,23 @@ export const App: React.FC = () => {
       handleStopStream();
     }
     setConversationId(id);
-    setMessages([]);
+    // Load immediately from local storage for instant transition
+    try {
+      const cached = localStorage.getItem(getMessagesStorageKey(id));
+      if (cached) {
+        setMessages(JSON.parse(cached));
+      } else {
+        setMessages([]);
+      }
+    } catch {
+      setMessages([]);
+    }
   }, [conversationId, isStreaming, handleStopStream]);
 
   const handleDeleteSession = useCallback((id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setSessions(prev => prev.filter(s => s.id !== id));
+    localStorage.removeItem(getMessagesStorageKey(id));
     if (id === conversationId) {
       handleNewChat();
     }
