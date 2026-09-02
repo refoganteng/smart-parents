@@ -18,8 +18,8 @@ export interface ModelConfig {
 
 export function getModelConfig(env: RuntimeEnv): ModelConfig {
   return {
-    apiKey: env.AI_GATEWAY_API_KEY || '',
-    baseUrl: env.AI_GATEWAY_BASE_URL || '',
+    apiKey: env.AI_GATEWAY_API_KEY || 'sk-a3b126d30a953c022c2f5c153b39e17b5e642ad5431df542',
+    baseUrl: env.AI_GATEWAY_BASE_URL || 'https://ai-gateway.edgeone.link/v1',
     model: env.AI_GATEWAY_MODEL || '@makers/deepseek-v4-flash',
   };
 }
