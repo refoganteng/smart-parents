@@ -39,9 +39,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar Container */}
       <aside className={`
-        fixed top-0 bottom-0 left-0 z-50 w-68 md:w-72 bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800/80 flex flex-col transition-transform duration-200 ease-in-out
-        lg:static lg:translate-x-0
-        ${isOpen ? 'translate-x-0' : '-translate-x-full lg:w-0 lg:border-r-0 lg:overflow-hidden'}
+        fixed top-0 bottom-0 left-0 z-50 w-68 md:w-72 bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800/80 flex flex-col transition-all duration-200 ease-in-out shrink-0
+        lg:static
+        ${isOpen ? 'translate-x-0 lg:w-68 md:lg:w-72' : '-translate-x-full lg:translate-x-0 lg:w-0 lg:border-r-0 lg:overflow-hidden lg:opacity-0 pointer-events-none lg:pointer-events-none'}
       `}>
         {/* Top: New Chat & Close Sidebar */}
         <div className="p-3 flex items-center justify-between gap-2 border-b border-slate-200/60 dark:border-slate-800/60">

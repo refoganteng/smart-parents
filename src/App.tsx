@@ -40,7 +40,12 @@ export const App: React.FC = () => {
   });
 
   const [isStreaming, setIsStreaming] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768;
+    }
+    return true;
+  });
   
   const [sessions, setSessions] = useState<ChatSessionMeta[]>(() => {
     try {
